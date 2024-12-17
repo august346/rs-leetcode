@@ -141,7 +141,7 @@ mod tests {
     #[case(vec![3,4,5], vec![1,2,6,7,8], 4.5)]
     #[case(vec![1,2,6,7], vec![3,4,5,8], 4.5)]
     #[case(vec![1,2], vec![3,4,5,6], 3.5)]
-    fn test_length_of_longest_substring(#[case] nums1: Vec<i32>, #[case] nums2: Vec<i32>, #[case] expected: f64) {
+    fn test(#[case] nums1: Vec<i32>, #[case] nums2: Vec<i32>, #[case] expected: f64) {
         let result = Solution::find_median_sorted_arrays(nums1, nums2);
         assert_eq!(result, expected);
     }

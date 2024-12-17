@@ -49,7 +49,7 @@ mod tests {
     #[case(vec![], 5, vec![])]        // Empty array case
     #[case(vec![1, 6142, 8192, 10239], 18431, vec![2, 3])]
     #[case(vec![5, 75, 25], 100, vec![1, 2])]
-    fn test_two_sum(#[case] nums: Vec<i32>, #[case] target: i32, #[case] expected: Vec<i32>) {
+    fn test(#[case] nums: Vec<i32>, #[case] target: i32, #[case] expected: Vec<i32>) {
         let result = Solution::two_sum(nums, target);
         assert_eq!(result, expected);
     }

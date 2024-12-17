@@ -86,7 +86,7 @@ mod tests {
     #[rstest]
     #[case(vec![2,4,3], vec![5,6,4], vec![7,0,8])]
     #[case(vec![9,9,9,9,9,9,9], vec![9,9,9,9], vec![8,9,9,9,0,0,0,1])]
-    fn test_two_sum(#[case] l1: Vec<i32>, #[case] l2: Vec<i32>, #[case] expected: Vec<i32>) {
+    fn test(#[case] l1: Vec<i32>, #[case] l2: Vec<i32>, #[case] expected: Vec<i32>) {
         let l1 = if !l1.is_empty() {Some(l1.into())} else {None};
         let l2 = if !l2.is_empty() {Some(l2.into())} else {None};
         let result: Vec<i32> = match Solution::add_two_numbers(l1, l2) {

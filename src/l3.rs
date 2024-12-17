@@ -36,7 +36,7 @@ mod tests {
     #[case("abba", 2)]     // The substring is "ab" or "ba".
     #[case("tmmzuxt", 5)]  // The substring is "mzuxt".
     #[case("dvdf", 3)]  // The substring is "mzuxt".
-    fn test_length_of_longest_substring(#[case] s: &str, #[case] expected: i32) {
+    fn test(#[case] s: &str, #[case] expected: i32) {
         let result = Solution::length_of_longest_substring(s.to_string());
         assert_eq!(result, expected);
     }
