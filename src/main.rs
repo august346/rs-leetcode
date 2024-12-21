@@ -10,6 +10,6 @@ mod l9;
 mod l10;
 
 fn main() {
-    l10::Solution::is_match("bbcacbabbcbaaccabc".to_string(), "b*a*a*.c*bb*b*.*.*".to_string());
+    l10::Solution::is_match("abbbcd".to_string(), "ab*bbbcd".to_string());
     println!("Hello, world!");
 }

@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 #[derive(Clone, Debug, PartialEq)]
 enum Symbol {
     Specific(char),
@@ -43,13 +45,6 @@ impl Repeat {
         vec![Repeat::Any, Repeat::AtLeast(0), Repeat::Number(0)].contains(self)
     }
 
-    fn is_any_or_at_least(&self) -> bool {
-        match self {
-            Repeat::Number(_) => false,
-            _ => true,
-        }
-    }
-
     fn decrement(&mut self) {
         match self {
             Repeat::Number(ref mut n) => *n -= 1,
@@ -61,6 +56,7 @@ impl Repeat {
     fn is_decremental(&self) -> bool {
         match self {
             Repeat::Number(n) => *n > 0,
+            Repeat::AtLeast(al) => *al > 0,
             _ => true
         }
     }
@@ -82,12 +78,6 @@ fn get_patterns(text: String) -> Vec<Pattern> {
     let mut result: Vec<Pattern> = vec![];
 
     for c in text.chars() {
-        let r_len = result.len();
-        let prev = match r_len > 1 {
-            true => result.clone().iter().nth(r_len - 2).map(|p| p.to_owned()),
-            false => None
-        };
-        let mut remove_last = false;
         match result.last_mut() {
             None => result.push(Pattern::new(c)),
             Some(pattern) => {
@@ -96,15 +86,7 @@ fn get_patterns(text: String) -> Vec<Pattern> {
                     Symbol::Repeat => match pattern.repeat {
                         Repeat::Number(n) => pattern.repeat = match n <= 1 {
                             false => Repeat::AtLeast(n - 1),
-                            true => {
-                                let res = Repeat::Any;
-
-                                if let Some(prev) = prev {
-                                    remove_last = prev.symbol == Symbol::Any && prev.repeat.is_any_or_at_least();
-                                }
-
-                                res
-                            },
+                            true => Repeat::Any
                         },
                         Repeat::AtLeast(al) => pattern.repeat = match al <= 1 {
                             false => Repeat::AtLeast(al - 1),
@@ -121,37 +103,59 @@ fn get_patterns(text: String) -> Vec<Pattern> {
                 }
             }
         };
-        if remove_last {
-            result.remove(result.len() - 1);
-        }
     }
 
     result
 }
 
 fn is_match(chars: Vec<char>, mut patterns: Vec<Pattern>) -> bool {
+    let ps_copy = patterns.clone();
+    let less_patterns = ps_copy[min(1, ps_copy.len())..].to_vec();
     match chars.first() {
         None => match patterns.first_mut() {
             None => true,
             Some(p) => match p.repeat.allow_zero() {
-                true => is_match(vec![], patterns[1..].to_vec()),
+                true => is_match(vec![], less_patterns),
                 false => false,
             }
         },
         Some(&c) => match patterns.first_mut() {
             None => false,
             Some(p) => {
-                match p.symbol.is_suitable(c) && p.repeat.is_decremental() {
-                    true => {
-                        p.repeat.decrement();
-                        let allow_zero = p.repeat.allow_zero();
-                        let new_chars = chars[1..].to_owned();
-                        if is_match(new_chars.clone(), patterns.to_owned()){
-                            return true
-                        }
-                        allow_zero && is_match(new_chars, patterns[1..].to_vec())
+                let less_chars = chars[1..].to_vec();
+                let lc_copy = less_chars.clone();
+                let lp_copy = less_patterns.clone();
+                let p_copy = ps_copy.clone();
+                let c_copy = chars.clone();
+                let pi_copy = p.clone();
+                let check_all_less_options = move || match pi_copy.symbol.is_suitable(c) {
+                    true => is_match(lc_copy.clone(), lp_copy.clone())
+                        || is_match(lc_copy.clone(), p_copy)
+                        || is_match(c_copy.clone(), lp_copy.clone()),
+                    false => is_match(c_copy, lp_copy),
+                };
+                match p.repeat {
+                    Repeat::Any => check_all_less_options(),
+                    Repeat::AtLeast(_) => match p.repeat.is_decremental() {
+                        true => match p.symbol.is_suitable(c) {
+                            true => {
+                                p.repeat.decrement();
+                                is_match(less_chars, patterns)
+                            }
+                            false => false,
+                        },
+                        false => check_all_less_options(),
                     },
-                    false => p.repeat.allow_zero() && is_match(chars, patterns[1..].to_vec()),
+                    Repeat::Number(_) => match p.repeat.is_decremental() {
+                        true => match p.symbol.is_suitable(c) {
+                            true => {
+                                p.repeat.decrement();
+                                is_match(less_chars, patterns)
+                            },
+                            false => false,
+                        },
+                        false => is_match(chars, less_patterns),
+                    }
                 }
             }
         }
@@ -164,8 +168,6 @@ impl Solution {
     pub fn is_match(s: String, p: String) -> bool {
         let chars: Vec<char> = s.chars().collect();
         let patterns = get_patterns(p);
-
-        println!("{:?}", patterns);
 
         is_match(chars, patterns)
     }
@@ -186,6 +188,7 @@ mod tests {
     #[case("aaa", "ab*a*c*a", true)]
     #[case("a", "ab*a", false)]
     #[case("a", "..*", true)]
+    #[case("abbbcd", "ab*bbbcd", true)]
     #[case("bbbaccbbbaababbac", ".b*b*.*...*.*c*.", true)]
     #[case("bbcacbabbcbaaccabc", "b*a*a*.c*bb*b*.*.*", true)]
     fn test(#[case] s: String, #[case] p: String, #[case] expected: bool) {
