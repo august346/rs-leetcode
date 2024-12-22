@@ -8,8 +8,9 @@ mod l7;
 mod l8;
 mod l9;
 mod l10;
+mod l11;
 
 fn main() {
-    l10::Solution::is_match("abbbcd".to_string(), "ab*bbbcd".to_string());
+    l11::Solution::max_area(vec![1,8,6,2,5,4,8,3,7]);
     println!("Hello, world!");
 }
