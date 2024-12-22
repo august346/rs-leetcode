@@ -1,16 +1,16 @@
-mod l1;
-mod l2;
-mod l3;
-mod l4;
-mod l5;
-mod l6;
-mod l7;
-mod l8;
-mod l9;
-mod l10;
-mod l11;
+mod l001;
+mod l002;
+mod l003;
+mod l004;
+mod l005;
+mod l006;
+mod l007;
+mod l008;
+mod l009;
+mod l010;
+mod l011;
 
 fn main() {
-    l11::Solution::max_area(vec![1,8,6,2,5,4,8,3,7]);
+    l011::Solution::max_area(vec![1, 8, 6, 2, 5, 4, 8, 3, 7]);
     println!("Hello, world!");
 }
