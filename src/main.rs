@@ -11,8 +11,9 @@ mod l010;
 mod l011;
 mod l012;
 mod l013;
+mod l014;
 
 fn main() {
-    l011::Solution::max_area(vec![1, 8, 6, 2, 5, 4, 8, 3, 7]);
+    l014::Solution::longest_common_prefix(vec!["ab","a"].into_iter().map(|s| s.to_string()).collect());
     println!("Hello, world!");
 }
